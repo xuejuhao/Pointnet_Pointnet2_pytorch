@@ -183,6 +183,8 @@ def sample_and_group_all(xyz, points):
     return new_xyz, new_points
 
 
+
+########################################################################### 现在的问题是下面的三个类分别都是干什么用的，这个需要搞清楚##########################
 class PointNetSetAbstraction(nn.Module):
     def __init__(self, npoint, radius, nsample, in_channel, mlp, group_all):
         super(PointNetSetAbstraction, self).__init__()
