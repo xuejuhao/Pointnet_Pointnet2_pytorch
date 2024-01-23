@@ -108,11 +108,30 @@ def query_ball_point(radius, nsample, xyz, new_xyz):
 
 
 def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
+    '''
+    这个函数是一个用于在输入的点云中进行采样和分组操作的工具函数。函数的输入参数包括：
+    - `npoint`: 采样后的点的数量。
+    - `radius`: 用于确定邻域的半径。
+    - `nsample`: 每个采样点邻域内的最大采样点数。
+    - `xyz`: 输入点云的位置数据，形状为 `[B, N, 3]`，其中 `B` 是批量大小，`N` 是点的数量，`3` 是每个点的坐标维度。
+    - `points`: 输入点云的其他属性数据，形状为 `[B, N, D]`，其中 `D` 是每个点的其他属性维度。
+    - `returnfps`: 一个布尔值，如果为 `True`，则返回最远点采样（Farthest Point Sampling，FPS）的索引。
+    
+    函数返回的数据有以下含义：
+    - `new_xyz`: 一个形状为 `[B, npoint, nsample, 3]` 的张量，表示采样后的点的位置数据。这些点是通过最远点采样得到的，
+        并且每个点都有一个邻域，邻域中包含了该点附近的其他点。
+    - `new_points`: 一个形状为 `[B, npoint, nsample, 3+D]` 的张量，表示采样后的点的数据。除了包含位置数据外，还包括了原始点云中对应位置的其他属性数据（如果有的话）。
+    
+    如果 `returnfps` 设置为 `True`，那么还会返回以下额外的数据：
+    - `grouped_xyz`: 一个形状为 `[B, npoint, nsample, 3]` 的张量，表示采样后的每个点的邻域内的所有点的位置数据。
+    - `fps_idx`: 一个形状为 `[B, npoint, C]` 的张量，表示最远点采样得到的点的索引，其中 `C` 是每个点的坐标维度。
+    '''
+    
     """
     Input:
-        npoint:
-        radius:
-        nsample:
+        npoint: 采样后点的数量
+        radius: 用于缺点邻域的半径
+        nsample: 每个采样点邻域内的最大采样点数。
         xyz: input points position data, [B, N, 3]
         points: input points data, [B, N, D]
     Return:
@@ -139,6 +158,12 @@ def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
 
 
 def sample_and_group_all(xyz, points):
+    """
+    这个函数的主要目的是将整个输入点云（由 xyz 和 points 表示）视为一个组，并返回一个采样后的点的位置数据和其他属性数据。返回的两个值的含义如下：
+    new_xyz: 一个形状为 [B, 1, 3] 的张量，表示采样后的点的位置数据。在这里，它是一个全零的张量，因为整个输入点云被视为一个组，而不是对点进行采样。
+    new_points: 一个形状为 [B, 1, N, 3+D] 的张量，表示采样后的点的数据。如果输入包含了点的其他属性（通过 points 参数表示），那么这些属性数据会被拼接到位置数据后面。
+    如果没有额外属性，那么 new_points 将仅包含位置数据。
+    """
     """
     Input:
         xyz: input points position data, [B, N, 3]
